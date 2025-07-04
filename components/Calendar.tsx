@@ -50,7 +50,7 @@ type Event = {
   end: Date;
   matiere?: string;
   location?: string;
-  [key: string]: any;
+  description?: string;
 };
 
 export default function CalendarComponent({ events }: { events: Event[] }) {

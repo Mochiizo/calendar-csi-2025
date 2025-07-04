@@ -6,7 +6,6 @@ import { parseICS } from "@/lib/parseIcs";
 import CalendarComponent from "@/components/Calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/components/mode-toggle";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
@@ -14,12 +13,11 @@ type Event = {
   title: string;
   start: Date;
   end: Date;
-  [key: string]: any;
+  matiere?: string;
+  location?: string;
+  description?: string;
 };
 
-type CalendarComponentProps = {
-  events: Event[];
-};
 
 function Navbar({ option, setOption }: { option: 'dev' | 'reseaux', setOption: (o: 'dev' | 'reseaux') => void }) {
   return (

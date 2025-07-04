@@ -1,0 +1,69 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [14, 16, 18] # Specify Node.js versions to test against
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ESLint
+        run: pnpm eslint . --ext .ts,.tsx,.js,.jsx
+        continue-on-error: true # Allow the workflow to continue even if linting fails
+
+      - name: Run Tests
+        run: pnpm test
+        env:
+          CI: true # Set CI environment variable for testing
+
+      - name: Generate Coverage Report
+        run: pnpm coverage
+        env:
+          CI: true
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Build Project
+        run: pnpm build
+
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/master' # Only deploy on master branch
+        run: |
+          echo "Deploying to staging environment..."
+          # Add your deployment script/command here
+
+      - name: Notify Build Status
+        uses: peter-evans/slack-send@v1
+        with:
+          status: ${{ job.status }}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }} # Use a secret for sensitive data
+
+      - name: Clean up
+        run: pnpm prune
